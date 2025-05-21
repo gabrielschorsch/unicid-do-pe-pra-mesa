@@ -1,6 +1,7 @@
-import { Link } from 'expo-router';
-import React, { Component } from 'react';
+import { useRouter } from 'expo-router';
+import React from 'react';
 import { Image, Text, TextInput, TouchableHighlight, View } from 'react-native';
+
 
 const logins = [{
     //vendendor:
@@ -15,27 +16,26 @@ const logins = [{
 
 ]
 
-export class login extends Component {
+export default function LoginScreen() {
+    const router = useRouter();
+    const [telefone, setTelefone] = React.useState('');
+    const [senha, setSenha] = React.useState('');
 
-
-state = {
-    telefone: '',
-    senha: '',
-};
-
-handleTelefoneChange = (text: string) => {
-    this.setState({ telefone: text });
-};
-
-handleSenhaChange = (text: string) => {
-    this.setState({ senha: text });
-};
-
-render() {
-    const { telefone, senha } = this.state;
-    const href = {
-        pathname: "/login/[telefone]/[senha]",
-        params: { telefone: encodeURIComponent(telefone), senha: encodeURIComponent(senha) }
+    const handleLogin = () => {
+        const usuario = logins.find(
+            (login) => login.telefone === telefone && login.senha === senha
+        );
+        if (usuario) {
+            if (usuario.telefone === logins[0].telefone) {
+                router.push('/layout-vendedor' as any);
+            } else if (usuario.telefone === logins[1].telefone) {
+                router.push('/layout-comprador' as any);
+            } else {
+                alert('Tipo de usuário não reconhecido');
+            }
+        } else {
+            alert('Telefone ou senha inválidos');
+        }
     };
 
     return (
@@ -60,51 +60,24 @@ render() {
                     placeholder="Telefone"
                     keyboardType="numeric"
                     value={telefone}
-                    onChangeText={this.handleTelefoneChange}
+                    onChangeText={setTelefone}
                 />
                 <TextInput
                     className="bg-gray-100 border-2 border-gray-300 rounded-lg p-2 mb-5 w-80"
                     placeholder="Senha"
                     value={senha}
-                    onChangeText={this.handleSenhaChange}
+                    onChangeText={setSenha}
                     secureTextEntry
                 />
-                {logins.some(
-                    (login) => login.telefone === telefone && login.senha === senha
-                ) ? (
-                    <Link
-                        href={{
-                            pathname: telefone == logins[0].telefone ? "/home-vendedor" : "/home-comprador",
-                            params: {
-                                telefone: encodeURIComponent(telefone),
-                                senha: encodeURIComponent(senha),
-                            },
-                        }}
-                        asChild
-                    >
-                        <TouchableHighlight
-                            className="bg-primary rounded-lg p-5 mb-5 w-80"
-                            underlayColor="#005fa3"
-                        >
-                            <Text className="text-center text-white">Entrar</Text>
-                        </TouchableHighlight>
-                    </Link>
-                ) : (
-                    <TouchableHighlight
-                        className="bg-primary rounded-lg p-5 mb-5 w-80"
-                        underlayColor="#005fa3"
-                        onPress={() => {
-                            alert('Telefone ou senha inválidos');
-                        }}
-                    >
-                        <Text className="text-center text-white">Entrar</Text>
-                    </TouchableHighlight>
-                )}
+                <TouchableHighlight
+                    className="bg-primary rounded-lg p-5 mb-5 w-80"
+                    underlayColor="#005fa3"
+                    onPress={handleLogin}
+                >
+                    <Text className="text-center text-white">Entrar</Text>
+                </TouchableHighlight>
                 <Text className="text-center text-blue-500">Esqueceu a senha?</Text>
             </View>
         </View>
     );
 }
-}
-
-export default login
